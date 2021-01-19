@@ -1,0 +1,21 @@
+{
+    "header" :
+    {
+        "platform" : "nutekt-digital",
+        "module" : "osc",
+        "api" : "1.1-0",
+        "dev_id" : 0,
+        "prg_id" : 0,
+        "version" : "1.0-0",
+        "name" : "Add",
+        "num_param" : 6,
+        "params" : [
+            ["OT2", 0, 100, "%"],
+            ["OT3", 0, 100, "%"],
+            ["OT4", 0, 100, "%"],
+            ["OT5", 0, 100, "%"],
+            ["OT6", 0, 100, "%"],
+            ["OT7", 0, 100, "%"]
+          ]
+    }
+}

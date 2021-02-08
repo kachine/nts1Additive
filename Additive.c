@@ -24,7 +24,6 @@ void OSC_INIT(uint32_t platform, uint32_t api)
   // Initialize voice parameters
   for(int8_t i=0; i<NUM_OVERTONES; i++){
     VOICE.waveformType[i] = INIT_WAVEFORM;  // Unable to assign parameter, due to NTS-1 param is limited to 6 (+2), so it is fixed to INIT_WAVEFORM and only sine wave was implemented.
-    VOICE.frequency[i] = 0.f;
     VOICE.phaseRatio[i] = (float) osc_rand() / UINT_MAX; // Randomize phase ratio within 0 to 1
     VOICE.levelRatio[i] = INIT_LEVEL_RATIO; // The root tone is fixed to this value
   }
@@ -44,14 +43,12 @@ void OSC_CYCLE(const user_osc_param_t * const params,
   // Last address of output buffer
   const q31_t * y_e = y + frames;
 
-  // MIDI note# of current process
+  // MIDI note# and pitch modifier of current process
+  // If pitch bend message has already received, note value may be differ from actual MIDI note#
+  // Pitch modifier value takes within 0 to 255, the value indicate 1/255 of semitone
+  // The pitch modifier is always upperward, so downer pitch bend is processed as a combination of note# decrement and adequate upperward pitch modifier.
   uint8_t note = params->pitch >> 8;
-
-  // Corresponding frequency of the MIDI note#
-  // Not only notenumber but also pitchbend and built-in LFO pitch modulation is taken into account
-  for(int8_t i=0; i<NUM_OVERTONES; i++){
-    VOICE.frequency[i] = osc_notehzf(note) * (i + 1);
-  }
+  uint8_t mod = params->pitch & 0xFF;
 
   // Current LFO value within -1 to 1
   float lfo = q31_to_f32(params->shape_lfo);
@@ -84,7 +81,7 @@ void OSC_CYCLE(const user_osc_param_t * const params,
       }
       sample += level * osc_sinf(VOICE.phaseRatio[i]);
       // Step a phase ratio
-      VOICE.phaseRatio[i] += VOICE.frequency[i] / k_samplerate;
+      VOICE.phaseRatio[i] += osc_w0f_for_note(note, mod) * (i + 1);
       // Keep the phase ratio within 0 <= phase < 1
       VOICE.phaseRatio[i] -= (uint32_t) VOICE.phaseRatio[i];
     }

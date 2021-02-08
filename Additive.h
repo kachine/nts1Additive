@@ -33,7 +33,6 @@ enum {
 
 struct _voice{
   uint8_t waveformType[NUM_OVERTONES]; // Waveform type, 0-3
-  float   frequency[NUM_OVERTONES];    // Frequency of the voice
   float   phaseRatio[NUM_OVERTONES];   // Phase ratio, 0<=phaseRatio<1.0
   float   levelRatio[NUM_OVERTONES];   // Level ratio, 0<=levelRatio<=1.0
   uint8_t lfoDestination;              // LFO destination
